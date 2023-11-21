@@ -4,7 +4,7 @@ use crate::rex::entity::Entity;
 
 fn main() {
     let mut player: Entity = Entity::default();
-    player.set_id(01);
+    player.set_id(1);
     player.set_name("criosage");
     player.add_component::<Transform>();
     player.add_component::<Renderer>();

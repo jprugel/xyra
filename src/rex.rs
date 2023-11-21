@@ -18,7 +18,7 @@ pub mod entity {
         }
 
         pub fn add_component<T: Default + 'static>(&mut self) {
-            self.components.push(Box::new(T::default()));
+            self.components.push(Box::<T>::default());
         }
 
         pub fn get_component<T: 'static>(&self) -> Option<&T> {
