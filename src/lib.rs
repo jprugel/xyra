@@ -1,6 +1,5 @@
 pub mod entity {
-    use crate::rex::component::Component;
-
+    use crate::component::Component;
     #[derive(Default)]
     pub struct Entity {
         id: usize,
