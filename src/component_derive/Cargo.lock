@@ -5,10 +5,3 @@ version = 3
 [[package]]
 name = "component_derive"
 version = "0.1.0"
-
-[[package]]
-name = "rex"
-version = "0.1.0"
-dependencies = [
- "component_derive",
-]

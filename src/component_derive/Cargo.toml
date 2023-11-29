@@ -1,10 +1,9 @@
-cargo-features = ["edition2024"]
 [package]
-name = "rex"
+name = "component_derive"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
+[lib]
+proc-macro = true
 [dependencies]
-component_derive = { path = "src/component_derive" }

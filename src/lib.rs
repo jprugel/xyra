@@ -1,61 +1,76 @@
-pub mod entity {
-    use crate::component::Component;
-    #[derive(Default)]
+pub mod ecs {
+    use std::any::Any;
+
     pub struct Entity {
         id: usize,
         name: String,
-        components: Vec<Box<dyn Component>>,
+        components: Vec<Box<dyn Component>>
     }
 
     impl Entity {
-        pub fn set_id(&mut self, id: usize) {
-            self.id = id;
+        pub fn add_component<T: Component + 'static>(&mut self, component: T) {
+            self.components.push(Box::new(component));
         }
 
-        pub fn set_name(&mut self, name: &str) {
-            self.name = name.to_string();
-        }
-
-        pub fn add_component<T: Default + 'static>(&mut self) {
-            self.components.push(Box::<T>::default());
-        }
-
-        pub fn get_component<T: 'static>(&self) -> Option<&T> {
-            let pos = self
-                .components
-                .iter()
-                .position(|x| (**x).as_any().is::<T>())?;
-            let value = self.components.get(pos)?;
-            let cast = (**value).as_any().downcast_ref::<T>()?;
-            Some(cast)
-        }
-
-        pub fn get_component_mut<T: 'static>(&mut self) -> Option<&mut T> {
-            let pos = self
-                .components
-                .iter()
-                .position(|x| (**x).as_any().is::<T>())?;
-            let value = self.components.get_mut(pos)?;
-            let cast = (**value).as_any_mut().downcast_mut::<T>()?;
-            Some(cast)
+        pub fn get_component<T: Component + 'static>(&self) -> Option<&T> {
+            let position = self.components.iter().position(|x| (**x).as_any().is::<T>())?;
+            let component = self.components.get(position)?;
+            let downcast = (**component).as_any().downcast_ref::<T>()?;
+            Some(downcast)
         }
     }
-}
 
-pub mod component {
-    use std::any::Any;
+    #[derive(Default)]
+    pub struct EntityBuilder {
+        id: Option<usize>,
+        name: Option<String>,
+        components: Vec<Box<dyn Component>>,
+    }
+
+    impl EntityBuilder {
+        pub fn set_id(mut self, id: usize) -> Self {
+            self.id = Some(id);
+            self
+        }
+
+        pub fn set_name(mut self, name: &str) -> Self {
+            self.name = Some(name.to_string());
+            self
+        }
+
+        pub fn add_component<T: Component + 'static>(mut self, component: T) -> Self {
+            self.components.push(Box::new(component));
+            self
+        }
+
+        pub fn build(self) -> Result<Entity, &'static str> {
+            let id = self.id.ok_or("Please set an Entity ID")?;
+            let name = self.name.unwrap_or(format!("Entity - {}", id));
+
+            let entity = Entity {
+                id,
+                name,
+                components: self.components,
+            };
+
+            Ok(entity)
+        }
+    }
 
     pub trait Component {
         fn as_any(&self) -> &dyn Any;
         fn as_any_mut(&mut self) -> &mut dyn Any;
     }
 
-    impl<T: 'static> Component for T {
-        fn as_any(&self) -> &dyn Any {
-            self
-        }
-        fn as_any_mut(&mut self) -> &mut dyn Any {
-            self
+    #[derive(Default)]
+    pub struct System {
+        entities: Vec<Entity>,
+    }
+
+    impl System {
+        pub fn create_entity(&mut self) -> EntityBuilder {
+            EntityBuilder::default()
         }
     }
+
 }
