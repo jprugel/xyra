@@ -68,8 +68,17 @@ pub mod ecs {
     }
 
     impl System {
-        pub fn create_entity(&mut self) -> EntityBuilder {
-            EntityBuilder::default()
+        pub fn create_entity<F>(&mut self, builder: F) -> &Entity where F: FnOnce() -> Entity {
+            let entity = builder();
+            self.entities.push(entity);
+            let pos = self.entities.len();
+            let entity = self.entities.get(pos);
+            entity.expect("Entity failed to create")
+        }
+
+        pub fn get_entity(&self, id: usize) -> Option<&Entity> {
+            let pos = self.entities.iter().position(|x| x.id == id)?;
+            self.entities.get(pos)
         }
     }
 
